@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@discordjs/voice": "^0.17.0",
+    "@distube/ytdl-core": "^4.14.4",
+    "@googleapis/youtube": "^20.0.0",
+    "bufferutil": "^4.0.8",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "ffmpeg": "^0.0.4",
+    "googleapis": "^143.0.0",
+    "play-dl": "^1.9.7",
+    "ts-node": "^10.9.2",
+    "tweetnacl": "^1.0.3",
+    "utf-8-validate": "^6.0.4"
+  },
+  "name": "fiumbotjs",
+  "version": "1.0.0",
+  "main": "main.ts",
+  "scripts": {
+    "start": "ts-node main.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
