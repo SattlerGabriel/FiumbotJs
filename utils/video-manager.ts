@@ -10,8 +10,6 @@ import {YouTubeVideo} from "play-dl";
 
 require('dotenv').config();
 
-const {google} = require("googleapis");
-const youtube = google.youtube({version: "v3", auth: process.env.GOOGLE_API});
 const ytdl = require('@distube/ytdl-core');
 const play = require('play-dl');
 const player = createAudioPlayer({
@@ -56,57 +54,57 @@ async function Queue(message: Message) {
 async function Play(message: Message, query: string, agent: any) {
     if (!message.member?.voice?.channel) return message.channel.send('Tenes que estar en un VC')
 
-    try {
-        if (query.includes('/playlist'))
-            return message.channel.send('Formato de playlist equivocado')
-        else if (query.includes('&list='))
-            await GetPlaylist(message, query.split("&list=")[1]);
-        else
-            await GetFirstVideoResult(message, query);
+    if (query.includes('/playlist'))
+        return message.channel.send('Formato de playlist equivocado')
+    else if (query.includes('&list='))
+        await GetPlaylist(message, query.split("&list=")[1]);
+    else
+        await GetFirstVideoResult(message, query.split('&')[0]);
 
-        await PlayVideo(message, agent);
-    } catch (e) {
-        console.log(e);
-        message.channel.send('Hubo un error al procesar la cancion/playlist');
-    }
+    await PlayVideo(message, agent);
 }
 
 async function PlayVideo(message: Message, agent: any) {
     if (queue.length === 0 || isPlaying) return;
 
-    connection = joinVoiceChannel({
-        channelId: message.member!.voice.channel!.id,
-        guildId: message.guild!.id,
-        adapterCreator: message.guild!.voiceAdapterCreator
-    })
-
-    console.log(queue[0].url)
-    const stream = ytdl(queue[0].url, {
-        audioonly: true,
-        highWaterMark: 1 << 25,
-        quality: 'highestaudio',
-        agent: agent
-    });
-    const resource = createAudioResource(stream,
-        {
-            inputType: stream.type
+    try {
+        connection = joinVoiceChannel({
+            channelId: message.member!.voice.channel!.id,
+            guildId: message.guild!.id,
+            adapterCreator: message.guild!.voiceAdapterCreator
         })
 
-    player.play(resource);
-    connection.subscribe(player);
-    console.log(queue[0]);
+        console.log(queue[0].url)
+        const stream = ytdl(queue[0].url, {
+            audioonly: true,
+            highWaterMark: 1 << 25,
+            quality: 'highestaudio',
+            agent: agent
+        });
+        const resource = createAudioResource(stream,
+            {
+                inputType: stream.type
+            })
 
-    isPlaying = true;
-    message.channel.send(`Reproduciendo ${queue[0].title}`);
+        player.play(resource);
+        connection.subscribe(player);
+        console.log(queue[0]);
 
-    playingTimeout = setTimeout(() => {
-        if (queue.length > 0) {
-            console.log("penis");
-            queue.shift();
-            isPlaying = false;
-            PlayVideo(message, agent);
-        }
-    }, queue[0].duration);
+        isPlaying = true;
+        message.channel.send(`Reproduciendo ${queue[0].title}`);
+
+        playingTimeout = setTimeout(() => {
+            if (queue.length > 0) {
+                console.log("penis");
+                queue.shift();
+                isPlaying = false;
+                PlayVideo(message, agent);
+            }
+        }, queue[0].duration);
+    } catch (e) {
+        console.log(e);
+        message.channel.send(`> Hubo un error reproduciendo el video`);
+    }
 }
 
 async function Skip(message: Message, agent: any) {
@@ -140,6 +138,7 @@ async function AddToQueue(message: Message, video: YouTubeVideo) {
         message.channel.send(`> Agregada el video ➡ **${video.title}**`);
     } catch (e) {
         console.log(e);
+        message.channel.send(`> Hubo un error procesando el link`);
         return;
     }
 }
