@@ -2,7 +2,6 @@
   "dependencies": {
     "@discordjs/voice": "^0.17.0",
     "@distube/ytdl-core": "^4.14.4",
-    "@googleapis/youtube": "^20.0.0",
     "bufferutil": "^4.0.8",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",

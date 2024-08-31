@@ -74,7 +74,6 @@ async function PlayVideo(message: Message, agent: any) {
             adapterCreator: message.guild!.voiceAdapterCreator
         })
 
-        console.log(queue[0].url)
         const stream = ytdl(queue[0].url, {
             audioonly: true,
             highWaterMark: 1 << 25,
@@ -88,14 +87,12 @@ async function PlayVideo(message: Message, agent: any) {
 
         player.play(resource);
         connection.subscribe(player);
-        console.log(queue[0]);
 
         isPlaying = true;
         message.channel.send(`Reproduciendo ${queue[0].title}`);
 
         playingTimeout = setTimeout(() => {
             if (queue.length > 0) {
-                console.log("penis");
                 queue.shift();
                 isPlaying = false;
                 PlayVideo(message, agent);
@@ -107,8 +104,11 @@ async function PlayVideo(message: Message, agent: any) {
     }
 }
 
+var canSkip = true;
+
 async function Skip(message: Message, agent: any) {
     if (queue.length == 0) return message.channel.send("> La lista de canciones esta vacia");
+    if (!canSkip) return message.channel.send("> Por favor espera medio segundo antes de seguir skippeando");
     message.channel.send(`Saltando la canción ➡ **${queue[0].title}**`);
     queue.shift();
     player.stop();
@@ -116,6 +116,9 @@ async function Skip(message: Message, agent: any) {
     clearTimeout(playingTimeout);
     isPlaying = false;
     await PlayVideo(message, agent);
+
+    canSkip = false;
+    setTimeout(() => canSkip = true, 500);
 }
 
 async function GetPlaylist(message: Message, query: string) {

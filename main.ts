@@ -1,6 +1,7 @@
 import {Client, Embed, EmbedBuilder, Events, GatewayIntentBits} from 'discord.js';
 import {isAdmin, ProcessCommand} from "./utils/bot-utils";
 import {Play, Queue, Skip} from "./utils/video-manager";
+import {FifaAddSong, FifaRemoveSong, FifaSeeList, LoadFifaToQueue} from "./utils/fifa";
 
 require('dotenv').config();
 const ytdl = require('@distube/ytdl-core');
@@ -30,32 +31,36 @@ client.on(Events.MessageCreate, async message => {
 
     switch (command.Command.toLowerCase()) {
         case '?':
-        case 'h':
-        case 'help':
             message.channel.send({embeds: [await Help()]});
             break;
         case 'p':
-        case 'play':
             if (!message.member!.voice?.channel) return message.channel.send('> Tenes que estar en un vc');
             await Play(message, command.Args, agent);
             break;
         case 's':
-        case 'skip':
             if (!message.member!.voice?.channel) return message.channel.send('> Tenes que estar en un vc');
             await Skip(message, agent);
             break;
         case 'q':
-        case 'queue':
             await Queue(message);
+            break;
+        case 'fifadd':
+            FifaAddSong(message, command.Args);
+            break;
+        case 'fifaq':
+            await FifaSeeList(message);
+            break;
+        case 'fifar':
+            await FifaRemoveSong(message, command.Args);
+            break;
+        case 'fifa':
+            await LoadFifaToQueue(message, agent);
             break;
         case 'test':
             if (!isAdmin(message)) return message.channel.send('> THIS IS A CERTIFIED FIUMBO COMMAND');
             await Play(message, 'https://www.youtube.com/watch?v=OyCFSNHjGQI', agent);
             await Play(message, 'https://www.youtube.com/watch?v=OyCFSNHjGQI', agent);
             await Play(message, 'https://www.youtube.com/watch?v=OyCFSNHjGQI', agent);
-            break;
-        default:
-            message.channel.send('Command not found');
             break;
     }
 })
@@ -65,8 +70,28 @@ async function Help() {
         .setColor("#00ffff")
         .setTitle('Lista de Comandos')
         .addFields({
-            name: 'h / help',
+            name: '?',
             value: 'Muestra este menu',
-            inline: true
+        }, {
+            name: 'p <query>',
+            value: 'Busca la query en youtube y lo agrega a la queue',
+        }, {
+            name: 's',
+            value: 'Salta el video actual',
+        }, {
+            name: 'q',
+            value: 'Muestra la cola de canciones',
+        }, {
+            name: 'fifa',
+            value: '⚽🥅🎶🎶🎶🎶',
+        }, {
+            name: 'fifadd <titulo completo del video>',
+            value: 'Agrega una canción al json de fifa',
+        }, {
+            name: 'fifar <indice de la cancion>',
+            value: 'Saca una cancion del json',
+        }, {
+            name: 'fifaq',
+            value: 'Muestra la lista de canciones de fifa',
         });
 }
