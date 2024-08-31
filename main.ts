@@ -1,4 +1,4 @@
-import {Client, Embed, EmbedBuilder, Events, GatewayIntentBits} from 'discord.js';
+import {Client, Embed, EmbedBuilder, Events, GatewayIntentBits, ActivityOptions} from 'discord.js';
 import {isAdmin, ProcessCommand} from "./utils/bot-utils";
 import {Play, Queue, Skip} from "./utils/video-manager";
 import {FifaAddSong, FifaRemoveSong, FifaSeeList, LoadFifaToQueue} from "./utils/fifa";
@@ -17,6 +17,9 @@ const client = new Client({intents: intents});
 
 client.once(Events.ClientReady, readyClient => {
     console.log(`Logged in as ${readyClient.user.tag}!`);
+    client.user!.setPresence({
+        activities: [{name: `-> ${prefix}?`, type: 3}],
+    })
 });
 
 client.login(token);
