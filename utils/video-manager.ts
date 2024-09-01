@@ -130,8 +130,20 @@ async function GetPlaylist(message: Message, query: string) {
 }
 
 async function GetFirstVideoResult(message: Message, query: string) {
-    const response = await play.search(query, {limit: 1}).then((videos: YouTubeVideo[]) => {
-        AddToQueue(message, videos[0]);
+    const response = await play.search(query, {limit: 5}).then((videos: YouTubeVideo[]) => {
+        // AddToQueue(message, videos[0]);
+        const tokens = query.split(',');
+        let highestScoringVideo: any = null;
+        videos.map((video: YouTubeVideo) => {
+            let score = 0;
+            for (let i = 0; i < tokens.length; i++) {
+                if (video!.title!.toLowerCase().includes(tokens[i])) score++;
+            }
+            if (highestScoringVideo == null) highestScoringVideo = {video: video, score: score};
+            else if (highestScoringVideo.score < score) highestScoringVideo = {video: video, score: score};
+        })
+        if (highestScoringVideo == null) return message.channel.send(`> No se encontro ningún match para tu busqueda`);
+        AddToQueue(message, highestScoringVideo.video);
     });
 }
 

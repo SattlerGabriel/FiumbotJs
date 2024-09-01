@@ -4,9 +4,9 @@ function ProcessCommand(message: string): Command {
     const content = message.split(' ');
     // Si el comando es un shorthand trimeamos solo el prefix
     if (content[0].length > 1)
-        return new Command(content[0].slice(1).toString(), content[1]);
+        return new Command(content[0].slice(1).toString(), content.slice(1).toString());
     else
-        return new Command(content[1], content[2]);
+        return new Command(content[1], content.slice(2).toString());
 }
 
 function isAdmin(message: Message): boolean {
